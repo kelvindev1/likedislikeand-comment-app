@@ -1,0 +1,93 @@
+.login-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.all-logins-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 400px;
+    padding: 20px;
+    border: none;
+}
+
+.form-signin {
+    width: 100%;
+    padding: 15px;
+}
+
+
+.form-signin .form-floating:focus-within {
+    z-index: 2;
+}
+
+.form-signin input[type="text"],
+.form-signin input[type="email"] {
+    margin-bottom: -1px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+    background: transparent;
+}
+
+.form-signin input[type="password"] {
+    margin-bottom: 10px;
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+    background: transparent;
+}
+
+
+.form-floating {
+    position: relative;
+}
+
+.form-floating label {
+    top: 60%;
+    transform: translateY(-50%);
+    transition: all 0.3s ease;
+}
+
+.form-floating input:focus {
+    outline: none;
+    box-shadow: none;
+}
+
+.form-floating input:focus~label,
+.form-floating input:not(:placeholder-shown)~label {
+    top: 10%;
+    transform: translateY(-100%);
+}
+
+.register-link-p,
+.join-link-div {
+    margin-top: 10px;
+}
+
+.join-link,
+.register-link {
+    text-decoration: none;
+    font-size: 18px;
+    margin-left: 5px;
+}
+
+.password-reset-link {
+    text-decoration: none;
+    font-size: 17px;
+}
+
+.password-reset-link:hover {
+    text-decoration: underline;
+}
+
+/* on dark mode  */
+.dark .form-floating input {
+    color: var(--text-color-dark);
+}
+
+.dark .form-floating input:focus {
+    color: var(--text-color-dark);
+}
