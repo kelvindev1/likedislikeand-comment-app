@@ -27,15 +27,17 @@ const Posts = ({ navigate }) => {
           navigate
         );
 
-        const userLikes = likesResponse.map((like) => like.post_id);
+        // Ensure likesResponse is an array before mapping
+        const userLikes = Array.isArray(likesResponse)
+          ? likesResponse.map((like) => like.post_id)
+          : [];
 
         if (Array.isArray(data)) {
           const updatedPosts = data.map((post) => ({
             ...post,
             isReadMore: false,
             isLiked: userLikes.includes(post.id),
-            like_count: likesResponse.filter((like) => like.post_id === post.id)
-              .length,
+            like_count: userLikes.filter((like) => like === post.id).length,
           }));
           setPosts(updatedPosts);
           setError("");
