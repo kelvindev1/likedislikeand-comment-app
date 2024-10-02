@@ -10,14 +10,6 @@ const Posts = ({ navigate }) => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState("");
 
-  const toggleReadMore = (id) => {
-    setPosts((prevPosts) =>
-      prevPosts.map((post) =>
-        post.id === id ? { ...post, isReadMore: !post.isReadMore } : post
-      )
-    );
-  };
-
   useEffect(() => {
     const fetchPosts = async () => {
       try {
@@ -28,11 +20,22 @@ const Posts = ({ navigate }) => {
           navigate
         );
 
+        const likesResponse = await MakeAuthRequests(
+          "http://127.0.0.1:5555/likes",
+          "GET",
+          {},
+          navigate
+        );
+
+        const userLikes = likesResponse.map((like) => like.post_id);
+
         if (Array.isArray(data)) {
           const updatedPosts = data.map((post) => ({
             ...post,
             isReadMore: false,
-            isLiked: post.isLiked || false,
+            isLiked: userLikes.includes(post.id),
+            like_count: likesResponse.filter((like) => like.post_id === post.id)
+              .length,
           }));
           setPosts(updatedPosts);
           setError("");
@@ -56,55 +59,38 @@ const Posts = ({ navigate }) => {
   }, [navigate]);
 
   const LikeAndDislike = async (postId) => {
-    const postIndex = posts.findIndex((post) => post.id === postId);
-    const post = posts[postIndex];
-
-    const updatedPost = {
-      ...post,
-      like_count: post.isLiked
-        ? (post.like_count || 0) - 1
-        : (post.like_count || 0) + 1,
-      isLiked: !post.isLiked,
-    };
-
-    setPosts((prevPosts) => {
-      const newPosts = [...prevPosts];
-      newPosts[postIndex] = updatedPost;
-      return newPosts;
-    });
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === postId
+          ? {
+              ...post,
+              isLiked: !post.isLiked,
+              like_count: post.isLiked
+                ? Math.max(0, (post.like_count || 0) - 1)
+                : (post.like_count || 0) + 1,
+            }
+          : post
+      )
+    );
 
     try {
-      const response = await MakeAuthRequests(
+      await MakeAuthRequests(
         `http://127.0.0.1:5555/likes`,
         "POST",
         { post_id: postId },
         navigate
       );
-      if (response.msg === "UnLiked") {
-        setPosts((prevPosts) =>
-          prevPosts.map((p) =>
-            p.id === postId
-              ? { ...p, like_count: (p.like_count || 0) - 1, isLiked: false }
-              : p
-          )
-        );
-      } else if (response.msg === "Liked") {
-        setPosts((prevPosts) =>
-          prevPosts.map((p) =>
-            p.id === postId
-              ? { ...p, like_count: (p.like_count || 0) + 1, isLiked: true }
-              : p
-          )
-        );
-      }
     } catch (error) {
       console.error("Failed to like/unlike post:", error);
-      setPosts((prevPosts) => {
-        const newPosts = [...prevPosts];
-        newPosts[postIndex] = post;
-        return newPosts;
-      });
     }
+  };
+
+  const toggleReadMore = (id) => {
+    setPosts((prevPosts) =>
+      prevPosts.map((post) =>
+        post.id === id ? { ...post, isReadMore: !post.isReadMore } : post
+      )
+    );
   };
 
   const handleComment = (postId) => {
@@ -124,14 +110,16 @@ const Posts = ({ navigate }) => {
           const isLongContent = post.content.length > 80;
           const displayContent = post.isReadMore
             ? post.content
-            : `${post.content.substring(0, 80)}...`;
+            : `${post.content.substring(0, 80)}`;
 
           return (
             <div className="col-md-4" key={post.id}>
-              <div className="card mb-4">
+              <div
+                className="card mb-4"
+                onDoubleClick={() => LikeAndDislike(post.id)}
+              >
                 <div className="card-body">
                   <h2 className="card-title">{post.title}</h2>
-
                   <p className="post-content">
                     {displayContent}
                     {isLongContent && (
@@ -144,17 +132,14 @@ const Posts = ({ navigate }) => {
                       </span>
                     )}
                   </p>
-
                   <p>
                     <strong>By:</strong> {post.userpost.username}
                   </p>
-
                   <Likes
                     isLiked={post.isLiked}
                     likeCount={post.like_count}
                     onLikeToggle={() => LikeAndDislike(post.id)}
                   />
-
                   <div className="post-actions">
                     <FontAwesomeIcon
                       icon={faComment}

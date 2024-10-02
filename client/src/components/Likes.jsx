@@ -1,16 +1,17 @@
 import React from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHeart } from "@fortawesome/free-solid-svg-icons";
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 function Likes({ isLiked, likeCount, onLikeToggle }) {
   return (
     <div className="post-actions">
-      <FontAwesomeIcon
-        icon={faHeart}
-        className={`action-icon ${isLiked ? "liked" : ""}`}
-        style={{ color: isLiked ? "red" : "aqua" }}
-        onClick={onLikeToggle}
-      />
+      {isLiked ? (
+        <AiFillHeart
+          className="text-danger action-icon"
+          onClick={onLikeToggle}
+        />
+      ) : (
+        <AiOutlineHeart className="action-icon" onClick={onLikeToggle} />
+      )}
       <span>{likeCount || 0}</span>
     </div>
   );
